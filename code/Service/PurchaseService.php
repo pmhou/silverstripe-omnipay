@@ -40,12 +40,13 @@ class PurchaseService extends PaymentService
 
         $this->extend('onBeforePurchase', $gatewayData);
         $request = $this->oGateway()->purchase($gatewayData);
-        $this->extend('onAfterPurchase', $request);
+        $requestData = $request->getData();
+        $this->extend('onAfterPurchase', $request, $requestData);
 
         $this->createMessage('PurchaseRequest', $request);
 
         try {
-            $response = $this->response = $request->send();
+            $response = $this->response = $request->sendData($requestData);
         } catch (\Omnipay\Common\Exception\OmnipayException $e) {
             $this->createMessage('PurchaseError', $e);
             // create an error response
